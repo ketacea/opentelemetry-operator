@@ -127,3 +127,12 @@ func volumeSize(quantity *resource.Quantity) *resource.Quantity {
 	}
 	return quantity
 }
+
+func getFromAnnotationAndLabel(pod corev1.Pod, key string) (string, bool) {
+	annoValue, annoOk := pod.Annotations[key]
+	labValue, labOk := pod.Labels[key]
+	if labOk {
+		return labValue, labOk
+	}
+	return annoValue, annoOk
+}
