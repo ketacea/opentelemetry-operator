@@ -307,6 +307,7 @@ func addDependencies(_ context.Context, mgr ctrl.Manager, cfg config.Config, v v
 	if err != nil {
 		return fmt.Errorf("failed to start the auto-detect mechanism: %w", err)
 	}
+	// opentelemetry-operator v0.86+只支持v1.23+，会导致低版本k8s报错（比如v1.21.3）。故注释掉collector相关逻辑
 	// // adds the upgrade mechanism to be executed once the manager is ready
 	// err = mgr.Add(manager.RunnableFunc(func(c context.Context) error {
 	// 	up := &collectorupgrade.VersionUpgrade{
