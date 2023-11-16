@@ -45,7 +45,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 
 	otelv1alpha1 "github.com/open-telemetry/opentelemetry-operator/apis/v1alpha1"
-	"github.com/open-telemetry/opentelemetry-operator/controllers"
+	//"github.com/open-telemetry/opentelemetry-operator/controllers"
 	"github.com/open-telemetry/opentelemetry-operator/internal/config"
 	"github.com/open-telemetry/opentelemetry-operator/internal/version"
 	"github.com/open-telemetry/opentelemetry-operator/internal/webhookhandler"
@@ -236,16 +236,17 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = controllers.NewReconciler(controllers.Params{
-		Client:   mgr.GetClient(),
-		Log:      ctrl.Log.WithName("controllers").WithName("OpenTelemetryCollector"),
-		Scheme:   mgr.GetScheme(),
-		Config:   cfg,
-		Recorder: mgr.GetEventRecorderFor("opentelemetry-operator"),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "OpenTelemetryCollector")
-		os.Exit(1)
-	}
+	// opentelemetry-operator v0.86+只支持v1.23+，会导致低版本k8s报错（比如v1.21.3）。故注释掉collector相关逻辑
+	//if err = controllers.NewReconciler(controllers.Params{
+	//	Client:   mgr.GetClient(),
+	//	Log:      ctrl.Log.WithName("controllers").WithName("OpenTelemetryCollector"),
+	//	Scheme:   mgr.GetScheme(),
+	//	Config:   cfg,
+	//	Recorder: mgr.GetEventRecorderFor("opentelemetry-operator"),
+	//}).SetupWithManager(mgr); err != nil {
+	//	setupLog.Error(err, "unable to create controller", "controller", "OpenTelemetryCollector")
+	//	os.Exit(1)
+	//}
 
 	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
 		if err = (&otelv1alpha1.OpenTelemetryCollector{}).SetupWebhookWithManager(mgr); err != nil {
