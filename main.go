@@ -33,7 +33,7 @@ import (
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
-	"k8s.io/client-go/tools/record"
+	//"k8s.io/client-go/tools/record"
 	k8sapiflag "k8s.io/component-base/cli/flag"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
@@ -50,7 +50,7 @@ import (
 	"github.com/open-telemetry/opentelemetry-operator/internal/version"
 	"github.com/open-telemetry/opentelemetry-operator/internal/webhookhandler"
 	"github.com/open-telemetry/opentelemetry-operator/pkg/autodetect"
-	collectorupgrade "github.com/open-telemetry/opentelemetry-operator/pkg/collector/upgrade"
+	//collectorupgrade "github.com/open-telemetry/opentelemetry-operator/pkg/collector/upgrade"
 	"github.com/open-telemetry/opentelemetry-operator/pkg/featuregate"
 	"github.com/open-telemetry/opentelemetry-operator/pkg/instrumentation"
 	instrumentationupgrade "github.com/open-telemetry/opentelemetry-operator/pkg/instrumentation/upgrade"
@@ -311,7 +311,7 @@ func addDependencies(_ context.Context, mgr ctrl.Manager, cfg config.Config, v v
 	// 		Log:      ctrl.Log.WithName("collector-upgrade"),
 	// 		Version:  v,
 	// 		Client:   mgr.GetClient(),
-	// 		Recorder: record.NewFakeRecorder(collectorupgrade.RecordBufferSize),
+	//		Recorder: record.NewFakeRecorder(collectorupgrade.RecordBufferSize),
 	// 	}
 	// 	return up.ManagedInstances(c)
 	// }))
