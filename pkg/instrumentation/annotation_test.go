@@ -130,6 +130,31 @@ func TestEffectiveAnnotationValue(t *testing.T) {
 			},
 			corev1.Namespace{},
 		},
+		{
+			"pod-has-instance-with-dot",
+			"some-ns/some.instance",
+			corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Annotations: map[string]string{
+						annotationInjectJava: "some-ns.some.instance",
+					},
+				},
+			},
+			corev1.Namespace{},
+		},
+
+		{
+			"ns-has-instance-with-dot",
+			"some-ns/some.instance",
+			corev1.Pod{},
+			corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Annotations: map[string]string{
+						annotationInjectJava: "some-ns.some.instance",
+					},
+				},
+			},
+		},
 	} {
 		t.Run(tt.desc, func(t *testing.T) {
 			// test

@@ -410,6 +410,13 @@ func getInstValue(nsObjMeta, podObjMeta v1.ObjectMeta, instAnnotation string) st
 	annoValue := annotationValue(nsObjMeta, podObjMeta, instAnnotation)
 	labValue := labelValue(nsObjMeta, podObjMeta, instAnnotation)
 
+	// the key may not support dash, so we find it again with double dot
+	if annoValue == "" && labValue == "" {
+		instAnnotation = strings.Replace(instAnnotation, "/", "..", 1)
+		annoValue = annotationValue(nsObjMeta, podObjMeta, instAnnotation)
+		labValue = labelValue(nsObjMeta, podObjMeta, instAnnotation)
+	}
+
 	if len(annoValue) == 0 {
 		return labValue
 	}

@@ -48,8 +48,8 @@ const (
 func annotationValue(ns metav1.ObjectMeta, pod metav1.ObjectMeta, annotation string) string {
 	// is the pod annotated with instructions to inject sidecars? is the namespace annotated?
 	// if any of those is true, a sidecar might be desired.
-	podAnnValue := pod.Annotations[annotation]
-	nsAnnValue := ns.Annotations[annotation]
+	podAnnValue := handleInstNameWithNamespace(pod.Annotations[annotation])
+	nsAnnValue := handleInstNameWithNamespace(ns.Annotations[annotation])
 
 	// if the namespace value is empty, the pod annotation should be used, whatever it is
 	if len(nsAnnValue) == 0 {
@@ -74,4 +74,11 @@ func annotationValue(ns metav1.ObjectMeta, pod metav1.ObjectMeta, annotation str
 	// by now, the pod annotation is 'true', and the namespace annotation is either true or an instance name
 	// so, the namespace annotation can be used
 	return nsAnnValue
+}
+
+// 1. 某些云平台（例如edas）下，Annotation和Label的值都不能包含/，要尝试替换
+// 2. K8s下，Label的值不能包含/，要尝试替换
+// 注意!: Instrumentation的名称不得包含点号，否则当未指定命名空间例如`your.demo.instrumentation`，此时将识别失败
+func handleInstNameWithNamespace(instName string) string {
+	return strings.Replace(instName, ".", "/", 1)
 }
