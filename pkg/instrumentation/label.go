@@ -10,11 +10,8 @@ import (
 func labelValue(ns metav1.ObjectMeta, pod metav1.ObjectMeta, label string) string {
 	// is the pod labeled with instructions to inject sidecars? is the namespace labeled?
 	// if any of those is true, a sidecar might be desired.
-	podLabelValue := pod.Labels[label]
-	nsLabelValue := ns.Labels[label]
-	// because the label value does not accept slash seperated values, we use dot instead for input and replace dots here
-	podLabelValue = strings.ReplaceAll(podLabelValue, ".", "/")
-	nsLabelValue = strings.ReplaceAll(nsLabelValue, ".", "/")
+	podLabelValue := handleInstNameWithNamespace(pod.Labels[label])
+	nsLabelValue := handleInstNameWithNamespace(ns.Labels[label])
 
 	// if the namespace value is empty, the pod label should be used, whatever it is
 	if len(nsLabelValue) == 0 {

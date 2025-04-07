@@ -10815,6 +10815,343 @@ func TestGetInstrumentationValue(t *testing.T) {
 	}
 }
 
+func TestGetInstrumentationValueWithDoubleDot(t *testing.T) {
+	annotationInjectJava := "instrumentation.opentelemetry.io..inject-java"
+	mutator := NewMutator(logr.Discard(), k8sClient, record.NewFakeRecorder(100))
+	require.NotNil(t, mutator)
+
+	tests := []struct {
+		name     string
+		ns       corev1.Namespace
+		pod      corev1.Pod
+		inst     string
+		expected string
+	}{
+		{
+			name: "anno-empty-label-empty",
+			ns: corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "java",
+				},
+			},
+			pod: corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "app",
+				},
+			},
+			inst:     annotationInjectJava,
+			expected: "",
+		},
+		{
+			name: "anno-empty-label-false",
+			ns: corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "java",
+				},
+			},
+			pod: corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "app",
+					Labels: map[string]string{
+						annotationInjectJava: "false",
+					},
+				},
+			},
+			inst:     annotationInjectJava,
+			expected: "false",
+		},
+		{
+			name: "anno-empty-label-true",
+			ns: corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "java",
+				},
+			},
+			pod: corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "app",
+					Labels: map[string]string{
+						annotationInjectJava: "true",
+					},
+				},
+			},
+			inst:     annotationInjectJava,
+			expected: "true",
+		},
+		{
+			name: "anno-empty-label-container",
+			ns: corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "java",
+				},
+			},
+			pod: corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "app",
+					Labels: map[string]string{
+						annotationInjectJava: "some-container",
+					},
+				},
+			},
+			inst:     annotationInjectJava,
+			expected: "some-container",
+		},
+		{
+			name: "anno-false-label-empty",
+			ns: corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "java",
+				},
+			},
+			pod: corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "app",
+					Annotations: map[string]string{
+						annotationInjectJava: "false",
+					},
+				},
+			},
+			inst:     annotationInjectJava,
+			expected: "false",
+		},
+		{
+			name: "anno-false-label-false",
+			ns: corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "java",
+				},
+			},
+			pod: corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "app",
+					Annotations: map[string]string{
+						annotationInjectJava: "false",
+					},
+					Labels: map[string]string{
+						annotationInjectJava: "false",
+					},
+				},
+			},
+			inst:     annotationInjectJava,
+			expected: "false",
+		},
+		{
+			name: "anno-false-label-true",
+			ns: corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "java",
+				},
+			},
+			pod: corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "app",
+					Annotations: map[string]string{
+						annotationInjectJava: "false",
+					},
+					Labels: map[string]string{
+						annotationInjectJava: "true",
+					},
+				},
+			},
+			inst:     annotationInjectJava,
+			expected: "true",
+		},
+		{
+			name: "anno-false-label-container",
+			ns: corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "java",
+				},
+			},
+			pod: corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "app",
+					Annotations: map[string]string{
+						annotationInjectJava: "false",
+					},
+					Labels: map[string]string{
+						annotationInjectJava: "some-container",
+					},
+				},
+			},
+			inst:     annotationInjectJava,
+			expected: "some-container",
+		},
+		{
+			name: "anno-true-label-empty",
+			ns: corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "java",
+				},
+			},
+			pod: corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "app",
+					Annotations: map[string]string{
+						annotationInjectJava: "true",
+					},
+				},
+			},
+			inst:     annotationInjectJava,
+			expected: "true",
+		},
+		{
+			name: "anno-true-label-false",
+			ns: corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "java",
+				},
+			},
+			pod: corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "app",
+					Annotations: map[string]string{
+						annotationInjectJava: "true",
+					},
+					Labels: map[string]string{
+						annotationInjectJava: "false",
+					},
+				},
+			},
+			inst:     annotationInjectJava,
+			expected: "true",
+		},
+		{
+			name: "anno-true-label-true",
+			ns: corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "java",
+				},
+			},
+			pod: corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "app",
+					Annotations: map[string]string{
+						annotationInjectJava: "true",
+					},
+					Labels: map[string]string{
+						annotationInjectJava: "true",
+					},
+				},
+			},
+			inst:     annotationInjectJava,
+			expected: "true",
+		},
+		{
+			name: "anno-true-label-container",
+			ns: corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "java",
+				},
+			},
+			pod: corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "app",
+					Annotations: map[string]string{
+						annotationInjectJava: "true",
+					},
+					Labels: map[string]string{
+						annotationInjectJava: "some-container",
+					},
+				},
+			},
+			inst:     annotationInjectJava,
+			expected: "some-container",
+		},
+		{
+			name: "anno-container-label-empty",
+			ns: corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "java",
+				},
+			},
+			pod: corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "app",
+					Annotations: map[string]string{
+						annotationInjectJava: "some-container",
+					},
+				},
+			},
+			inst:     annotationInjectJava,
+			expected: "some-container",
+		},
+		{
+			name: "anno-container-label-false",
+			ns: corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "java",
+				},
+			},
+			pod: corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "app",
+					Annotations: map[string]string{
+						annotationInjectJava: "some-container",
+					},
+					Labels: map[string]string{
+						annotationInjectJava: "false",
+					},
+				},
+			},
+			inst:     annotationInjectJava,
+			expected: "some-container",
+		},
+		{
+			name: "anno-container-label-true",
+			ns: corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "java",
+				},
+			},
+			pod: corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "app",
+					Annotations: map[string]string{
+						annotationInjectJava: "some-container",
+					},
+					Labels: map[string]string{
+						annotationInjectJava: "true",
+					},
+				},
+			},
+			inst:     annotationInjectJava,
+			expected: "some-container",
+		},
+		{
+			name: "anno-container-label-container",
+			ns: corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "java",
+				},
+			},
+			pod: corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "app",
+					Annotations: map[string]string{
+						annotationInjectJava: "some-container",
+					},
+					Labels: map[string]string{
+						annotationInjectJava: "some-container1",
+					},
+				},
+			},
+			inst:     annotationInjectJava,
+			expected: "some-container1",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			test.inst = "instrumentation.opentelemetry.io/inject-java"
+			instValue := getInstValue(test.ns.ObjectMeta, test.pod.ObjectMeta, test.inst)
+			assert.Equal(t, test.expected, instValue)
+		})
+	}
+}
+
+
+
 func TestSingleInstrumentationEnabled(t *testing.T) {
 	tests := []struct {
 		name             string
